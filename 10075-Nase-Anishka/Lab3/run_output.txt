@@ -1,0 +1,58 @@
+Clock-Sweep buffer cache demo (capacity = 4)
+  LOAD  put(101, alice)   [frame 0]
+  LOAD  put(102, bob)   [frame 1]
+  LOAD  put(103, carol)   [frame 2]
+  LOAD  put(104, dave)   [frame 3]
+
+--- after initial 4 inserts ---
+frame  valid   ref   key       value     hand
+0      yes     1     101       alice     <--
+1      yes     1     102       bob       
+2      yes     1     103       carol     
+3      yes     1     104       dave      
+
+  HIT   get(101) -> alice   [frame 0]
+  HIT   get(103) -> carol   [frame 2]
+
+--- after touching 101 and 103 ---
+frame  valid   ref   key       value     hand
+0      yes     1     101       alice     <--
+1      yes     1     102       bob       
+2      yes     1     103       carol     
+3      yes     1     104       dave      
+
+  SWEEP frame 0 ref 1 -> 0
+  SWEEP frame 1 ref 1 -> 0
+  SWEEP frame 2 ref 1 -> 0
+  SWEEP frame 3 ref 1 -> 0
+  EVICT frame 0 -> drop key 101
+  LOAD  put(105, erin)   [frame 0]
+
+--- after inserting key 105 (one eviction expected) ---
+frame  valid   ref   key       value     hand
+0      yes     1     105       erin      
+1      yes     0     102       bob       <--
+2      yes     0     103       carol     
+3      yes     0     104       dave      
+
+  EVICT frame 1 -> drop key 102
+  LOAD  put(106, frank)   [frame 1]
+
+--- after inserting key 106 (second eviction expected) ---
+frame  valid   ref   key       value     hand
+0      yes     1     105       erin      
+1      yes     1     106       frank     
+2      yes     0     103       carol     <--
+3      yes     0     104       dave      
+
+  UPDT  put(105, erin-updated)   [frame 0]
+
+--- after updating key 105 in place ---
+frame  valid   ref   key       value     hand
+0      yes     1     105       erin-updated
+1      yes     1     106       frank     
+2      yes     0     103       carol     <--
+3      yes     0     104       dave      
+
+  MISS  get(101)
+  lookup of evicted key 101 returned <miss>
