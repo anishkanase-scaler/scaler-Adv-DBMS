@@ -1,0 +1,14 @@
+opened 'file.txt' for reading      (fd = 3)
+
+----- file contents -----
+Lab 1 — File Handling Using System Calls in Linux.
+This file is read by file_handling.c using open() and read().
+Each run of the program appends one more line below using write().
+
+-------------------------
+total bytes read: 182
+closed the read descriptor
+
+reopened 'file.txt' in append mode (fd = 3)
+appended 66 bytes: This line was appended with the write() system call (roll 10075).
+closed the write descriptor
